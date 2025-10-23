@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ish-movie-ticket-service
+spec:
+  type: NodePort
+  selector:
+    app: ish-cinebook
+  ports:
+    - port: 80        # Service port inside cluster
+      targetPort: 80  # Container port
+      nodePort: 30002 # Port on host

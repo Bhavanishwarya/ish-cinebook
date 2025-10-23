@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ISH CineBook — Movie Ticket Booking</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg1:#0f1724; --accent:#ff3860; --card:#0b1220;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family:'Poppins',sans-serif; background:linear-gradient(180deg,#071428 0%, #0f1724 100%);
+      color:#e6eef8; display:flex; align-items:center; justify-content:center; min-height:100vh;
+      padding:24px;
+    }
+    .app{
+      width:100%; max-width:920px; display:grid; grid-template-columns:1fr 380px; gap:24px;
+      align-items:start;
+    }
+    header{grid-column:1/-1; text-align:center; margin-bottom:6px}
+    .brand {font-size:28px; font-weight:700; letter-spacing:0.6px;}
+    .subtitle{font-size:13px; color:#b6c7d9; margin-top:6px}
+
+    .cinema {
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border-radius:14px; padding:18px; box-shadow: 0 8px 30px rgba(2,6,23,0.6); border:1px solid rgba(255,255,255,0.04);
+    }
+
+    .card-title {display:flex; justify-content:space-between; align-items:center; margin-bottom:12px}
+    .movie {
+      display:flex; gap:12px; align-items:center;
+    }
+    .poster {
+      width:84px; height:120px; border-radius:8px; background:linear-gradient(180deg,#2b2f45,#171a2b);
+      display:flex; align-items:center; justify-content:center; font-weight:700; color:#fff
+    }
+    .meta {font-size:13px; color:#cddff3}
+
+    .select {
+      margin-top:14px; display:flex; gap:10px; align-items:center; justify-content:space-between;
+    }
+    select, input[type="number"], input[type="text"]{
+      width:100%; padding:10px 12px; background:transparent; color: #e6eef8; border:1px solid rgba(255,255,255,0.06);
+      border-radius:8px; outline:none;
+    }
+    label{display:block; font-size:13px; color:#b7c9df; margin-bottom:6px}
+    form .field{margin-bottom:12px}
+
+    .right {
+      position:relative;
+    }
+    .summary {
+      background: linear-gradient(180deg,#081025 0%, #071427 100%);
+      padding:18px; border-radius:12px; border:1px solid rgba(255,255,255,0.03);
+    }
+    .price {font-weight:700; font-size:20px; color:var(--accent)}
+    button.book {
+      width:100%; padding:12px; margin-top:10px; border:none; border-radius:10px; background:linear-gradient(90deg,var(--accent),#ff6b87);
+      color:white; font-weight:600; cursor:pointer; box-shadow:0 8px 20px rgba(255,56,96,0.14);
+    }
+    .seats {display:grid; grid-template-columns:repeat(8,1fr); gap:8px; margin-top:14px}
+    .seat {height:28px; background:#0f1724; border:1px solid rgba(255,255,255,0.04); border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:12px; cursor:pointer}
+    .seat.selected {background:var(--accent); color:white; transform:translateY(-2px)}
+    .legend {display:flex; gap:10px; margin-top:10px; font-size:12px; color:#b7c9df}
+    .legend div{display:flex; gap:6px; align-items:center}
+    .chip {width:14px; height:14px; border-radius:3px; background:#0f1724; border:1px solid rgba(255,255,255,0.06)}
+
+    footer{grid-column:1/-1; margin-top:18px; text-align:center; color:#9fb2d1; font-size:13px}
+    @media(max-width:860px){ .app{grid-template-columns:1fr; padding:10px} .right{order:2} }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="brand">ISH CineBook 🎬</div>
+      <div class="subtitle">Book your seats for the latest movie release</div>
+    </header>
+
+    <section class="cinema">
+      <div class="card-title">
+        <div>
+          <div style="font-weight:700; font-size:18px">Now showing</div>
+          <div style="color:#9fb2d1; font-size:12px; margin-top:6px">Choose movie, seats and book</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:13px; color:#b7c9df">Date</div>
+          <div id="showDate" style="font-weight:600; font-size:14px; margin-top:4px"></div>
+        </div>
+      </div>
+
+      <!-- Poster placeholder -->
+      <div class="movie">
+          <img src="images/para.jpeg" alt="Paradise Movie Poster" style="width:60%; height:100%; border-radius:8px; object-fit:cover;">
+
+        <div style="flex:1; text-align:left">
+          <div style="font-weight:700; font-size:16px">Paradise</div>
+          <div class="meta">Action · 2h 10m · 4.7/5</div>
+          <div style="margin-top:8px; font-size:13px; color:#b7c9df">Release Date: March 26, 2026 — Starring: Nani</div>
+        </div>
+      </div>
+
+      <form id="bookingForm" style="margin-top:14px; text-align:left">
+        <div class="field">
+          <label for="name">Name</label>
+          <input id="name" type="text" placeholder="Your name" required />
+        </div>
+
+        <div class="field">
+          <label for="movie">Movie / Show</label>
+          <select id="movie">
+            <option>Paradise — 7:30 PM</option>
+            <option>Paradise — 10:00 PM</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Choose seats</label>
+          <div class="seats" id="seatsGrid"></div>
+          <div class="legend">
+            <div><span class="chip" style="background:var(--accent)"></span> Selected</div>
+            <div><span class="chip" style="background:#0f1724"></span> Available</div>
+            <div><span class="chip" style="background:#444a60"></span> Booked</div>
+          </div>
+        </div>
+
+        <div style="display:flex; gap:10px; margin-top:8px">
+          <div style="flex:1">
+            <label>Tickets</label>
+            <input id="tickets" type="number" min="1" value="1">
+          </div>
+          <div style="flex:1">
+            <label>Promo Code</label>
+            <input id="promo" type="text" placeholder="PROMO10" />
+          </div>
+        </div>
+
+      </form>
+    </section>
+
+    <aside class="right">
+      <div class="summary">
+        <div style="display:flex; justify-content:space-between; align-items:center">
+          <div>
+            <div style="font-size:13px; color:#b7c9df">Order Summary</div>
+            <div style="font-weight:700; font-size:18px">Tickets</div>
+          </div>
+          <div class="price" id="totalPrice">₹295</div>
+        </div>
+
+        <div style="margin-top:10px; font-size:13px; color:#9fb2d1">
+          <div>Per ticket: <span id="perTicket">₹295</span></div>
+          <div style="margin-top:6px">Selected seats: <span id="selectedSeats">0</span></div>
+        </div>
+
+        <button class="book" id="bookBtn">Book Tickets</button>
+        <div style="font-size:12px; color:#9fb2d1; margin-top:8px">This is a demo UI for your DevOps assignment — clicking will show a success message.</div>
+      </div>
+    </aside>
+
+    <footer>ish-cinebook@2025</footer>
+  </div>
+
+  <script>
+    const seatsGrid = document.getElementById('seatsGrid');
+    const selectedSeatsEl = document.getElementById('selectedSeats');
+    const totalPriceEl = document.getElementById('totalPrice');
+    const perTicketEl = document.getElementById('perTicket');
+    const ticketsInput = document.getElementById('tickets');
+    const bookBtn = document.getElementById('bookBtn');
+
+    const TICKET_PRICE = 295;
+    let selectedSeats = new Set();
+    const booked = new Set(['A3','B5']); // example pre-booked
+
+    function seatId(row, col){ return row + (col+1); }
+
+    // build 4 rows x 8 cols
+    const rows = ['A','B','C','D'];
+    rows.forEach(r=>{
+      for(let c=0;c<8;c++){
+        const id = seatId(r,c);
+        const div = document.createElement('div');
+        div.className = 'seat';
+        div.innerText = id;
+        if(booked.has(id)){ div.style.background='#444a60'; div.style.cursor='not-allowed'; }
+        div.addEventListener('click', ()=>{
+          if(booked.has(id)) return;
+          if(selectedSeats.has(id)){ selectedSeats.delete(id); div.classList.remove('selected'); }
+          else { selectedSeats.add(id); div.classList.add('selected'); }
+          updateSummary();
+        });
+        seatsGrid.appendChild(div);
+      }
+    });
+
+    function updateSummary(){
+      selectedSeatsEl.innerText = selectedSeats.size;
+      const tickets = Math.max(1, parseInt(ticketsInput.value||'1'));
+      const total = tickets * TICKET_PRICE;
+      perTicketEl.innerText = '₹' + TICKET_PRICE;
+      totalPriceEl.innerText = '₹' + total;
+    }
+
+    ticketsInput.addEventListener('change', updateSummary);
+    bookBtn.addEventListener('click', ()=>{
+      if(!document.getElementById('name').value.trim()){ alert('Please enter name'); return; }
+      alert('🎉 Success — booking simulated. ');
+    });
+
+    document.getElementById('showDate').innerText = new Date().toLocaleDateString();
+    updateSummary();
+  </script>
+</body>
+</html>

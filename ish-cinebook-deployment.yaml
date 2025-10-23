@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ish-cinebook-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ish-cinebook
+  template:
+    metadata:
+      labels:
+        app: ish-cinebook
+    spec:
+      containers:
+      - name: ish-cinebook-container
+        image: bhavanishwarya/ish-cinebook:1.0
+        ports:
+        - containerPort: 80
